@@ -49,7 +49,7 @@ function runAction(
     const options: RequestInit = {
         method: normalizedMethod,
         headers,
-        signal: controller.signal,
+        // signal: controller.signal,
     };
 
     if (bodyData !== null) {
@@ -65,7 +65,7 @@ function runAction(
     }, base._airtable._requestTimeout);
 
     fetch(url, options)
-        .then(resp => {
+        .then((resp) => {
             clearTimeout(timeout);
             if (resp.status === 429 && !base._airtable._noRetryIfRateLimited) {
                 const backoffDelayMs = exponentialBackoffWithJitter(numAttempts);
@@ -74,24 +74,24 @@ function runAction(
                 }, backoffDelayMs);
             } else {
                 resp.json()
-                    .then(body => {
+                    .then((body) => {
                         const error = base._checkStatusForError(resp.status, body);
                         // Ensure Response interface matches interface from
                         // `request` Response object
                         const r = {} as ActionResponse;
-                        Object.keys(resp).forEach(property => {
+                        Object.keys(resp).forEach((property) => {
                             r[property] = resp[property];
                         });
                         r.body = body;
                         r.statusCode = resp.status;
                         callback(error, r, body);
                     })
-                    .catch(function() {
+                    .catch(function () {
                         callback(base._checkStatusForError(resp.status));
                     });
             }
         })
-        .catch(error => {
+        .catch((error) => {
             clearTimeout(timeout);
             callback(error);
         });
